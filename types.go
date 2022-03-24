@@ -1,35 +1,35 @@
 package main
 
 type super struct {
-	id        int
-	name      string
-	createdAt string
-	updatedAt string
-	deletedAt string
+	Id        int
+	Name      string
+	CreatedAt string
+	UpdatedAt string
+	DeletedAt string
 }
 
 type store struct {
 	super
-	imageLink string
+	ImageLink string
 }
 type storeType struct {
 	super
-	imageLink string
+	ImageLink string
 }
 type product struct {
 	super
-	imageLinks [4]string
+	ImageLinks [4]string
 }
 type productType struct {
 	super
-	imageLink string
-	storeId   int
+	ImageLink string
+	StoreId   int
 }
 type productTypeProduct struct {
-	productTypeId int
-	productId     int
+	ProductTypeId int
+	ProductId     int
 }
 type storeTypeStore struct {
-	storeTypeId int
-	storeId     int
+	StoreTypeId int
+	StoreId     int
 }
