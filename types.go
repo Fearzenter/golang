@@ -63,7 +63,13 @@ func (j JsonStorage) GetProductByID(id int) (Product, error) {
 		return Product{}, errors.New("unmarshal fail")
 	}
 	fmt.Println(products[id].Name, "is:")
-	return products[id], nil
+	var index int
+	for i, p := range products {
+		if p.Id == id {
+			index = i
+		}
+	}
+	return products[index], nil
 }
 
 func (j JsonStorage) UpdateProductById(id int, p Product) ([]Product, error) {
@@ -80,15 +86,19 @@ func (j JsonStorage) UpdateProductById(id int, p Product) ([]Product, error) {
 
 func (j JsonStorage) DeleteProductByID(id int) ([]Product, error) { //нужно вернуть массив новых продуктов или уд. продукт?
 	var products []Product
+
+	var index int
+	for i, p := range products {
+		if p.Id == id {
+			index = i
+		}
+	}
+
 	if err := j.UnmarshalFile(&products); err != nil {
 		return []Product{}, err
 	}
-	if id > 0 && id < len(products) {
-		products = append(products[:id-1], products[id+1:]...)
-	} else if id == 0 {
-		//products = append(products[:0], products[1:]...)    //как удалить нулевой и последний
-	} else {
-		//products = append(products[:1], products[2:]...)
+	if index >= 0 && index < len(products) {
+		products = append(products[:index], products[index+1:]...)
 	}
 	if err := j.marshalFile(products); err != nil {
 		return []Product{}, errors.New("delete fail")
