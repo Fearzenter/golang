@@ -40,10 +40,17 @@ func (j JsonStorage) UnmarshalFile(target interface{}) error {
 	if err != nil {
 		return err
 	}
+	/*err1 := json.Unmarshal(decode, target)
+	if _, ok := err1.(*json.MarshalerError); ok {
+		return nil
+	}*/
+	if len(decode) == 0 {
+		return nil
+	}
 	return json.Unmarshal(decode, target)
 }
 
-//product crud
+//Product crud
 func (j JsonStorage) CreateProduct(p Product) (Product, error) {
 	var products []Product
 	if err := j.UnmarshalFile(&products); err != nil {
@@ -78,13 +85,13 @@ func (j JsonStorage) UpdateProductById(id int, p Product) ([]Product, error) {
 		return []Product{}, err
 	}
 	if err, _ := j.DeleteProductByID(id); err != nil {
-		return []Product{}, errors.New("delete fail")
+		return []Product{}, errors.New("delete fail") ////////peredelat na zamenu
 	}
 	products = append(products, p)
 	return products, nil
 }
 
-func (j JsonStorage) DeleteProductByID(id int) ([]Product, error) { //нужно вернуть массив новых продуктов или уд. продукт?
+func (j JsonStorage) DeleteProductByID(id int) ([]Product, error) { //нужно вернуть  уд. продукт, sohranit` zaranee
 	var products []Product
 
 	var index int
@@ -107,7 +114,7 @@ func (j JsonStorage) DeleteProductByID(id int) ([]Product, error) { //нужно
 	return products, nil
 }
 
-//store crud
+//Store crud
 func (j JsonStorage) CreateStore(s Store) (Store, error) {
 	var stores []Store
 	if err := j.UnmarshalFile(&stores); err != nil {

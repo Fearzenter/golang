@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 )
@@ -23,7 +22,7 @@ func loadFile(name string) {
 }
 
 func main() {
-	{
+	/*{
 		{
 			fmt.Println("Hello!\n")
 
@@ -81,9 +80,22 @@ func main() {
 		loadFile("file.json")
 	}
 
-	/*e := echo.New()
+	e := echo.New()
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello, World!")
 	})
 	e.Logger.Fatal(e.Start(":1323"))*/
+
+	store1 := Store{super{Id: 1, Name: "svetofor", CreatedAt: "now", UpdatedAt: "now+1", DeletedAt: "now+2"}, "abra kadabra1"}
+	store2 := Store{super{Id: 2, Name: "magnit", CreatedAt: "now", UpdatedAt: "now+1", DeletedAt: "now+2"}, "abra kadabra2"}
+	store3 := Store{super{Id: 3, Name: "pyatorochka", CreatedAt: "now", UpdatedAt: "now+1", DeletedAt: "now+2"}, "abra kadabra3"}
+
+	storageStore := JsonStorage{fileName: "Store.json"}
+	_, err := storageStore.CreateStore(store1)
+	if err != nil {
+		return
+	}
+	storageStore.CreateStore(store2)
+	storageStore.CreateStore(store3)
+
 }
