@@ -1,19 +1,19 @@
 package main
 
 import (
-	"container/list"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"time"
 )
 
 type super struct {
 	Id        int
 	Name      string
-	CreatedAt string
-	UpdatedAt string
-	DeletedAt string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt time.Time
 }
 
 type ProductRepository interface {
@@ -84,15 +84,6 @@ func (j JsonStorage) UpdateProductById(id int, p Product) ([]Product, error) {
 	if err := j.UnmarshalFile(&products); err != nil {
 		return []Product{}, err
 	}
-	if err, _ := j.DeleteProductByID(id); err != nil {
-		return []Product{}, errors.New("delete fail") ////////peredelat na zamenu
-	}
-	products = append(products, p)
-	return products, nil
-}
-
-func (j JsonStorage) DeleteProductByID(id int) ([]Product, error) { //нужно вернуть  уд. продукт, sohranit` zaranee
-	var products []Product
 
 	var index int
 	for i, p := range products {
@@ -101,17 +92,36 @@ func (j JsonStorage) DeleteProductByID(id int) ([]Product, error) { //нужно
 		}
 	}
 
+	products[index].Name = p.Name
+	products[index].UpdatedAt = time.Now()
+	products[index].ImageLinks = p.ImageLinks
+
+	products = append(products, p)
+	return products, nil
+}
+
+func (j JsonStorage) DeleteProductByID(id int) (Product, error) { //возвращает удаленный продукт
+	var products []Product
+
 	if err := j.UnmarshalFile(&products); err != nil {
-		return []Product{}, err
+		return Product{}, err
 	}
-	if index >= 0 && index < len(products) {
+
+	var index int //поиск индекса по айди
+	for i, p := range products {
+		if p.Id == id {
+			index = i
+		}
+	}
+	deleted := products[index]               //сохранение до удаления
+	if index >= 0 && index < len(products) { //удаление
 		products = append(products[:index], products[index+1:]...)
 	}
-	if err := j.marshalFile(products); err != nil {
-		return []Product{}, errors.New("delete fail")
+	if err := j.marshalFile(products); err != nil { //перезапись
+		return Product{}, errors.New("delete fail")
 	}
 	fmt.Println("Product deleted")
-	return products, nil
+	return deleted, nil
 }
 
 //Store crud
@@ -148,9 +158,17 @@ func (j JsonStorage) UpdateStoreById(id int, s Store) ([]Store, error) {
 	if err := j.UnmarshalFile(&stores); err != nil {
 		return []Store{}, err
 	}
-	if err, _ := j.DeleteProductByID(id); err != nil {
-		return []Store{}, errors.New("delete fail")
+
+	var index int
+	for i, s := range stores {
+		if s.Id == id {
+			index = i
+		}
 	}
+
+	stores[index].Name = s.Name
+	stores[index].UpdatedAt = time.Now()
+	stores[index].ImageLink = s.ImageLink
 	stores = append(stores, s)
 	return stores, nil
 }
@@ -212,9 +230,18 @@ func (j JsonStorage) UpdateStoreTypeById(id int, s StoreType) ([]StoreType, erro
 	if err := j.UnmarshalFile(&storeTypes); err != nil {
 		return []StoreType{}, err
 	}
-	if err, _ := j.DeleteProductByID(id); err != nil {
-		return []StoreType{}, errors.New("delete fail")
+
+	var index int
+	for i, s := range storeTypes {
+		if s.Id == id {
+			index = i
+		}
 	}
+
+	storeTypes[index].Name = s.Name
+	storeTypes[index].UpdatedAt = time.Now()
+	storeTypes[index].ImageLink = s.ImageLink
+
 	storeTypes = append(storeTypes, s)
 	return storeTypes, nil
 }
@@ -271,15 +298,24 @@ func (j JsonStorage) GetProductTypeByID(id int) (ProductType, error) {
 	return productTypes[index], nil
 }
 
-func (j JsonStorage) UpdateProductTypeById(id int, s ProductType) ([]ProductType, error) {
+func (j JsonStorage) UpdateProductTypeById(id int, p ProductType) ([]ProductType, error) {
 	var productTypes []ProductType
 	if err := j.UnmarshalFile(&productTypes); err != nil {
 		return []ProductType{}, err
 	}
-	if err, _ := j.DeleteProductByID(id); err != nil {
-		return []ProductType{}, errors.New("delete fail")
+
+	var index int
+	for i, p := range productTypes {
+		if p.Id == id {
+			index = i
+		}
 	}
-	productTypes = append(productTypes, s)
+
+	productTypes[index].Name = p.Name
+	productTypes[index].UpdatedAt = time.Now()
+	productTypes[index].ImageLink = p.ImageLink
+
+	productTypes = append(productTypes, p)
 	return productTypes, nil
 }
 
@@ -316,7 +352,7 @@ type StoreType struct {
 }
 type Product struct {
 	super
-	ImageLinks list.List
+	ImageLinks []string
 }
 type ProductType struct {
 	super
